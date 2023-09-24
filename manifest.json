@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "SheetKeys",
+  "name": "SlideKeys",
   "version": "0.3",
-  "description": "Adds powerful keyboard shortcuts to Google Sheets, in the spirit of the Vim text editor.",
+  "description": "Adds powerful keyboard shortcuts to Google Slides",
   "permissions": [
     "storage"
   ],
@@ -20,13 +20,13 @@
   "content_scripts": [
     {
       "matches": [
-        "https://docs.google.com/spreadsheets/*",
-        "https://docs.google.com/a*/spreadsheets/*"
+        "https://docs.google.com/presentation/*",
+        "https://docs.google.com/a*/presentation/*"
       ],
       "js": [
         "content_scripts/keyboard_utils.js",
         "content_scripts/settings.js",
-        "content_scripts/sheet_actions.js",
+        "content_scripts/slide_actions.js",
         "content_scripts/ui.js",
         "content_scripts/commands.js",
         "help_dialog.js"
