@@ -1,4 +1,7 @@
-Copyright (c) for portions of this software are held by Phil Crosby, Ilya Sukhar, 2010 as part of sheetkeys. All other copyright this software are held by Yoshiaki Nishimura, 2023.
+Copyright © 2023 Yoshiaki Nishimura
+
+This project is a fork of SheetKeys by Phil Crosby, Ilya Sukhar:
+https://github.com/philc/sheetkeys
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
