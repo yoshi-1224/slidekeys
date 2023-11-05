@@ -42,16 +42,12 @@ class HelpDialog {
     };
   }
 
-  // Returns a map of groupName => [commandKey]
+  
   getCommandsByGroup() {
-    const groupsToCommand = {
-      "movement": [],
-      "editing": [],
-      "selection": [],
-      "tabs": [],
-      "formatting": [],
-      "other": [],
-    };
+    const groupsToCommand = {};
+    for (const item in Commands.getCommandGroups()) {
+      groupsToCommand.item = []
+    }
 
     for (const [key, command] of Object.entries(Commands.commands)) {
       groupsToCommand[command.group].push(key);
@@ -175,7 +171,7 @@ class HelpDialog {
       el.innerText = "";
     }
 
-    const normalModeMappings = Object.entries((await Settings.loadUserKeyMappings()).normal);
+    const normalModeMappings = Object.entries((await Settings.generateUserKeyMappings()).normal);
 
     for (const row of this.el.shadowRoot.querySelectorAll("tr[data-command]")) {
       const rowMapping = row.dataset.mapping;
@@ -192,7 +188,7 @@ class HelpDialog {
   // Restores the command currently being mapped to its SheetKeys default mapping.
   resetToDefault() {
     const command = this.edits.rowEl.dataset.command;
-    const defaultMapping = Commands.defaultMappings.normal[command];
+    const defaultMapping = Commands.getDefaultMappings().normal[command];
     this.edits.keyStrings = defaultMapping ? defaultMapping.split(Commands.KEY_SEPARATOR) : [];
     this.displayKeyString(this.edits.rowEl.querySelector(".shortcut"), defaultMapping);
     this.commitChange();
@@ -227,10 +223,10 @@ class HelpDialog {
   }
 
   async populateDialog() {
-    const commandsByGroup = this.getCommandsByGroup();
+    const commandsByGroup = Commands.getCommandsByGroup();
 
     // These are the order in which they'll be shown in the dialog.
-    const groups = ["movement", "selection", "editing", "formatting", "other"];
+    const groups = Object.keys(commandsByGroup);
 
     const capitalize = function (str) {
       const lower = str.toLowerCase();
@@ -246,7 +242,7 @@ class HelpDialog {
     table.innerHTML = "";
 
     // Only show bindings, and only allow customization, for normal mode.
-    const normalModeMappings = (await Settings.loadUserKeyMappings()).normal;
+    const normalModeMappings = (await Settings.generateUserKeyMappings()).normal;
 
     for (const group of groups) {
       const thead = theadTemplate.cloneNode(true);

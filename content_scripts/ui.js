@@ -1,22 +1,3 @@
-// Utilities
-window.invertObjectMap = (o) => {
-  const o2 = {};
-  for (const k of Object.keys(o)) {
-    const v = o[k];
-    o2[v] = k;
-  }
-  return o2;
-};
-
-// Add an event listener which removes itself once the event is fired once.
-const addOneTimeListener = function (dispatcher, eventType, listenerFn) {
-  const handlerFn = function (e) {
-    dispatcher.removeEventListener(eventType, handlerFn, true);
-    return listenerFn(e);
-  };
-  return dispatcher.addEventListener(eventType, handlerFn, true);
-};
-
 const UI = {
   // An arbitrary limit that should instead be equal to the longest key sequence that's actually
   // bound.
@@ -26,117 +7,74 @@ const UI = {
   // A map of mode -> comma-separated keys -> bool. The keys are prefixes to the user's bound key
   // mappings.
   keyMappingsPrefixes: null,
-  richTextEditorId: "waffle-rich-text-editor",
   modeToKeyToCommand: null,
 
   init() {
-    this.injectPageScript();
-    SheetActions.typeKeyFn = this.typeKey;
-    window.addEventListener("focus", (e) => this.onFocus(e), true);
-    // When we first focus the spreadsheet, if we're in fullscreen mode, dismiss Sheet's "info"
-    // message.
-    addOneTimeListener(window, "focus", () => {
-      // We have to wait 1 second because the DOM is not yet ready to be clicked on.
-      return setTimeout(() => SheetActions.dismissFullScreenNotificationMessage(), 1000);
-    });
-
     // Key event handlers fire on window before they do on document. Prefer window for key events so
     // the page can't set handlers to grab keys before this extension does.
-    window.addEventListener("keydown", (e) => this.onKeydown(e), true);
+    window.addEventListener("keydown", (e) => this._onKeydown(e), true);
 
-    this.loadKeyMappings();
+    setTimeout(function () {
+      // Function to add a keydown event listener to the document of an iframe
+      function addKeydownListenerToIframe(iframe) {
+        try {
+          // Attempt to access the content document of the iframe
+          var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+
+          // Add the event listener to the iframe's document
+          iframeDocument.addEventListener('keydown', (e) => UI._onKeydown(e), true);
+
+          console.log('Added keydown listener to iframe:', iframe.src);
+        } catch (error) {
+          console.log('Error accessing iframe:', error);
+        }
+      }
+
+      // Get all iframes on the page
+      var iframes = document.querySelectorAll('iframe');
+
+      // Add the keydown listener to each iframe
+      iframes.forEach(addKeydownListenerToIframe);
+      console.log('Added keydown listeners to all iframes.');
+    }, 5000);
+    /////
+
+    this._loadKeyMappings();
 
     // If a key mapping setting is changed from another tab, update this tab's key mappings.
     chrome.runtime.onMessage.addListener((message) => {
       if (message == "keyMappingChange") {
-        this.loadKeyMappings();
+        this._loadKeyMappings();
       }
     });
   },
 
-  async loadKeyMappings() {
-    const mappings = await Settings.loadUserKeyMappings();
+  async _loadKeyMappings() {
+    console.log("ui.js: loading key mappings");
+    const mappings = await Settings.generateUserKeyMappings();
     this.modeToKeyToCommand = {};
     for (const mode of Object.keys(mappings)) {
       const m = mappings[mode];
-      this.modeToKeyToCommand[mode] = invertObjectMap(m);
+      this.modeToKeyToCommand[mode] = Utils.invertObjectMap(m);
     }
 
-    // Since we don't expose in the UI the concept of mappings for insert mode commands, for
-    // commands that exist in both modes, use the mappings defined for normal mode.
-    for (const [commandName, insertKey] of Object.entries(mappings["insert"])) {
-      const normalKey = mappings.normal[commandName];
-      if (normalKey) {
-        delete this.modeToKeyToCommand["insert"][insertKey];
-        this.modeToKeyToCommand["insert"][normalKey] = commandName;
-      }
-    }
+    // // Since we don't expose in the UI the concept of mappings for insert mode commands, for
+    // // commands that exist in both modes, use the mappings defined for normal mode.
+    // for (const [commandName, insertKey] of Object.entries(mappings["insert"])) {
+    //   const normalKey = mappings.normal[commandName];
+    //   if (normalKey) {
+    //     delete this.modeToKeyToCommand["insert"][insertKey];
+    //     this.modeToKeyToCommand["insert"][normalKey] = commandName;
+    //   }
+    // }
 
-    this.keyMappingsPrefixes = this.buildKeyMappingsPrefixes(mappings);
-  },
-
-  // We inject the page_script into the page so that we can simulate keypress events, which must be
-  // done by a page script, and not a content script.
-  // See here for docs on how to inject page scripts: http://stackoverflow.com/a/9517879/46237
-  injectPageScript() {
-    const script = document.createElement("script");
-    script.src = chrome.runtime.getURL("page_scripts/page_script.js");
-    return document.documentElement.appendChild(script);
-  },
-
-  isEditable(el) {
-    // Note that the window object doesn't have a tagname.
-    const tagName = (el.tagName ? el.tagName.toLowerCase() : null);
-    return el.isContentEditable || tagName === "input" || tagName === "textarea";
-  },
-
-  onFocus(_event) {
-    if (!this.editor) this.setupEditor();
-    const el = event.target;
-    if (el.id === this.richTextEditorId) {
-      if (SheetActions.mode === "disabled") {
-        SheetActions.setMode("normal");
-      }
-    } else if (this.isEditable(el)) {
-      SheetActions.setMode("disabled");
-    }
-  },
-
-  setupEditor() {
-    if (!this.editor) {
-      this.editor = document.getElementById(this.richTextEditorId);
-      if (this.editor) {
-        // Listen for when the editor's style attribute changes. This indicates that a cell is now
-        // being edited, perhaps due to double clicking into a cell.
-        const observer = new MutationObserver((_mutations) => {
-          if (SheetActions.mode == "disabled") {
-            return;
-          }
-          this.isEditorEditing() ? SheetActions.setMode("insert") : SheetActions.setMode("normal");
-        });
-        observer.observe(this.editor.parentNode, {
-          attributes: true,
-          attributeFilter: ["style"],
-        });
-      }
-    }
-
-    return this.editor;
-  },
-
-  isEditorEditing() {
-    if (!this.editor) return false;
-    // There's no obvious way to determine directly that the cell editor is currently editing a
-    // cell. However, when this happens, the parent node of the editor gets a big long style
-    // attribute to portray the cell editor input box.
-    const style = this.editor.parentNode.getAttribute("style");
-    return style != null && style != "";
+    this.keyMappingsPrefixes = this._buildKeyMappingsPrefixes(mappings);
   },
 
   // Returns a map of (partial keyString) => is_bound?
   // Note that the keys only include partial keystrings for mappings. So the mapping "d•a•p" will
   // add "d" and "d•a" keys to this map, but not "d•a•p".
-  buildKeyMappingsPrefixes(keyMappings) {
+  _buildKeyMappingsPrefixes(keyMappings) {
     const prefixes = {};
     for (const mode in keyMappings) {
       prefixes[mode] = {};
@@ -155,51 +93,36 @@ const UI = {
     return prefixes;
   },
 
-  cancelEvent(e) {
+  _cancelEvent(e) {
     e.preventDefault();
     e.stopPropagation();
   },
 
-  onKeydown(e) {
+  _onKeydown(e) {
     const keyString = KeyboardUtils.getKeyString(e);
     // console.log("keydown event. keyString:", keyString, e.keyCode, e.keyIdentifier, e);
-    if (this.ignoreKeys || SheetActions.mode == "disabled") return;
+    if (this.ignoreKeys || SlideActions.mode == "disabled") return;
 
     // Ignore key presses which are just modifiers.
     if (!keyString) return;
 
     // In replace mode, we're waiting for one character to be typed, and we will replace the cell's
     // contents with that character and then return to normal mode.
-    if (SheetActions.mode === "replace") {
+    if (SlideActions.mode === "replace") {
       if (keyString === "esc") {
-        this.cancelEvent(e);
-        SheetActions.setMode("normal");
+        this._cancelEvent(e);
+        SlideActions.setMode("normal");
       } else {
-        SheetActions.changeCell();
-        setTimeout(() => SheetActions.commitCellChanges(), 0);
+        SlideActions.changeCell();
+        setTimeout(() => SlideActions.commitCellChanges(), 0);
       }
-      return;
-    }
-
-    // if keystring is a number, add it to the repeatCount
-    if (SheetActions.mode === "normal" && keyString.match(/^\d+$/)) {
-      if (!this.repeatCount) {
-        this.repeatCount = parseInt(keyString);
-      } else {
-        this.repeatCount = this.repeatCount * 10 + parseInt(keyString);
-        if (this.repeatCount > 99) {
-          this.repeatCount = 99;
-        }
-      }
-      // console.log("repeatCount:", this.repeatCount);
-      this.cancelEvent(e);
       return;
     }
 
     this.keyQueue.push(keyString);
     // There are keymaps for two different modes: insert and normal. When we're in one of the visual
     // modes, use the normal keymap. The commands themselves may implement mode-specific behavior.
-    const modeToUse = SheetActions.mode == "insert" ? "insert" : "normal";
+    const modeToUse = SlideActions.mode == "insert" ? "insert" : "normal";
     if (this.keyQueue.length > this.maxKeyMappingLength) this.keyQueue.shift();
     const modeMappings = this.modeToKeyToCommand[modeToUse] || [];
     const modePrefixes = this.keyMappingsPrefixes[modeToUse] || [];
@@ -213,31 +136,24 @@ const UI = {
       // page. Also, if some longer mapping partially matches this key sequence, then wait for more
       // keys, and don't immediately apply a shorter mapping which also matches this key sequence.
       if (modePrefixes[keySequence]) {
-        this.cancelEvent(e);
+        this._cancelEvent(e);
         return;
       }
 
       commandName = modeMappings[keySequence];
       if (commandName) {
         this.keyQueue = [];
-        this.cancelEvent(e);
+        this._cancelEvent(e);
 
         const command = Commands.commands[commandName];
 
-        if (this.repeatCount === null || command.nonRepeatable) {
-          this.repeatCount = 1;
-        }
-
-        for (let i = 0; i < this.repeatCount; i++) {
-          command.fn();
-        }
-        this.repeatCount = null;
+        command.fn();
       }
     }
   },
 
   // modifiers: Optional; an object with these boolean properties: meta, shift, control.
-  typeKey(keyCode, modifiers) {
+  _simulateKeyEvent(keyCode, modifiers) {
     if (keyCode == null) throw "The keyCode provided to typeKey() is null.";
     this.ignoreKeys = true;
     if (!modifiers) modifiers = {};
@@ -249,14 +165,33 @@ const UI = {
     this.ignoreKeys = false;
   },
 
-  reflowGrid() {
-    // When you hide a DOM element, Google's Waffle grid doesn't know to reflow and take up the full
-    // viewport. You can trigger a reflow by resizing the browser or by clicking on the Explore
-    // button in the lower-left corner.
-    const exploreButton = document.querySelector(".waffle-assistant-entry [role=button]");
-    KeyboardUtils.simulateClick(exploreButton);
-    KeyboardUtils.simulateClick(exploreButton); // Click twice to show and then hide.
+  simulateClick(el, x, y) {
+    if (x == null) x = 0;
+    if (y == null) y = 0;
+    const eventSequence = ["mouseover", "mousedown", "mouseup", "click"];
+    for (const eventName of eventSequence) {
+      const event = document.createEvent("MouseEvents");
+      event.initMouseEvent(
+        eventName,
+        true, // bubbles
+        true, // cancelable
+        window, //view
+        1, // event-detail
+        x, // screenX
+        y, // screenY
+        x, // clientX
+        y, // clientY
+        false, // ctrl
+        false, // alt
+        false, // shift
+        false, // meta
+        0, // button
+        null, // relatedTarget
+      );
+      el.dispatchEvent(event);
+    }
   },
+
 };
 
 // Don't initialize this Sheets UI if this code is being loaded from our extension's options page.

@@ -20,13 +20,15 @@ const keyCodes = {
   f12: 123,
 };
 
-window.KeyboardUtils = {
+// https://stackoverflow.com/questions/6349232/whats-the-difference-between-a-global-variable-and-a-window-variable-in-javas
+const KeyboardUtils = {
   keyCodes: keyCodes,
 
   // A map of keyCode => keyName (a reverse map of keyCodes).
   keyNames: new Map(Object.entries(keyCodes).map(([k, v]) => [v, k])),
 
   // Returns the string "<A-f>" if "alt F" is pressed.
+  // this is called by help_dialog.js and ui.js.
   getKeyString(event) {
     let keyString;
     if (this.keyNames.has(event.keyCode)) {
@@ -73,72 +75,6 @@ window.KeyboardUtils = {
     }
     return keyString;
   },
-
-  createSimulatedKeyEvent(type, keyCode, keyIdentifier) {
-    // How to do this in Chrome: http://stackoverflow.com/q/10455626/46237
-    const event = document.createEvent("KeyboardEvent");
-    Object.defineProperty(event, "keyCode", {
-      get() {
-        return this.keyCodeVal;
-      },
-    });
-    Object.defineProperty(event, "which", {
-      get() {
-        return this.keyCodeVal;
-      },
-    });
-    Object.defineProperty(event, "keyIdentifier", {
-      get() {
-        return keyIdentifier;
-      },
-    });
-    event.initKeyboardEvent(
-      type,
-      true,
-      true,
-      document.defaultView,
-      false,
-      false,
-      false,
-      false,
-      keyCode,
-      0,
-    );
-    event.keyCodeVal = keyCode;
-    event.keyIdentifier = keyIdentifier;
-    return event;
-  },
-
-  simulateKeypress(el, keyCode, keyIdentifier) {
-    el.dispatchEvent(this.createSimulatedKeyEvent("keydown", keyCode, keyIdentifier));
-    el.dispatchEvent(this.createSimulatedKeyEvent("keypress", keyCode, keyIdentifier));
-    el.dispatchEvent(this.createSimulatedKeyEvent("keyup", keyCode, keyIdentifier));
-  },
-
-  simulateClick(el, x, y) {
-    if (x == null) x = 0;
-    if (y == null) y = 0;
-    const eventSequence = ["mouseover", "mousedown", "mouseup", "click"];
-    for (const eventName of eventSequence) {
-      const event = document.createEvent("MouseEvents");
-      event.initMouseEvent(
-        eventName,
-        true, // bubbles
-        true, // cancelable
-        window, //view
-        1, // event-detail
-        x, // screenX
-        y, // screenY
-        x, // clientX
-        y, // clientY
-        false, // ctrl
-        false, // alt
-        false, // shift
-        false, // meta
-        0, // button
-        null, // relatedTarget
-      );
-      el.dispatchEvent(event);
-    }
-  },
 };
+
+window.KeyboardUtils = KeyboardUtils;

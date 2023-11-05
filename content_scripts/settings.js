@@ -1,7 +1,7 @@
 const Settings = {
   settingsKey: "settings-v1",
 
-  async get() {
+  async _get() {
     // NOTE(philc): If we change the schema of the settings object in a backwards-incompatible way,
     // then we can fetch the whole storage object here and migrate any old settings the user has to
     // the new schema.
@@ -19,6 +19,7 @@ const Settings = {
       }
     }
 
+    // copy values -> defaultOptions
     return Object.assign(defaultOptions, values);
   },
 
@@ -34,22 +35,28 @@ const Settings = {
     if (commandName == null || keyMapping == "") {
       throw new Error(`Invalid command name or key mapping '${commandName}', '${keyMapping}'`);
     }
-    const settings = await Settings.get();
+    const settings = await Settings._get();
     settings.keyMappings[commandName] = keyMapping;
     Settings.set(settings);
     chrome.runtime.sendMessage(null, "keyMappingChange");
   },
 
   // Returns a map of { mode => { commandName => keyString } }
-  async loadUserKeyMappings() {
-    const settings = await Settings.get();
-    const mappings = {};
-    // Do a deep clone of the default mappings.
-    for (const mode of Object.keys(Commands.defaultMappings)) {
-      mappings[mode] = Object.assign({}, Commands.defaultMappings[mode]);
-    }
+  async generateUserKeyMappings() {
+    const settings = await Settings._get();
+    const mappings = getDefaultMappings();
+    // overwrite default mappings with user-defined mappings defined in settings.keyMappings
     // We only allow the user to bind keys in normal mode, for conceptual and UI simplicity.
     mappings.normal = Object.assign(mappings.normal, settings.keyMappings);
     return mappings;
+
+    function getDefaultMappings() {
+      const mappings = {};
+      // Do a deep clone of the default mappings.
+      for (const mode of Object.keys(Commands.getDefaultMappings())) {
+        mappings[mode] = Object.assign({}, Commands.getDefaultMappings()[mode]);
+      }
+      return mappings;
+    }
   },
 };

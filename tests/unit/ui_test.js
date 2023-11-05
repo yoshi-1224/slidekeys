@@ -1,6 +1,6 @@
 import * as shoulda from "../vendor/shoulda.js";
 import { assert, context, should } from "../vendor/shoulda.js";
-import "../../content_scripts/sheet_actions.js";
+import "../../content_scripts/slide_actions.js";
 import "../../content_scripts/commands.js";
 import "../../content_scripts/ui.js";
 
@@ -19,7 +19,7 @@ context("UI", () => {
         "moveDown": "z",
       },
     };
-    const result = UI.buildKeyMappingsPrefixes(mappings);
+    const result = UI._buildKeyMappingsPrefixes(mappings);
     assert.equal({ "a": true, "a•b": true, "x": true }, result["normal"]);
   });
 });

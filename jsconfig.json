@@ -1,0 +1,11 @@
+// for VSCode to recognize references across all JS files
+// https://stackoverflow.com/questions/49184790/how-to-using-vscode-javascripts-go-to-definition-cross-files
+{
+    "compilerOptions": {
+        "target": "ES6"
+    },
+    "exclude": [
+        "node_modules",
+        "**/node_modules/*"
+    ]
+}

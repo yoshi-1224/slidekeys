@@ -1,0 +1,200 @@
+--findMenuItem--
+
+finalMenus = []
+const menuItems = document.querySelectorAll(".goog-menuitem");
+for (const menuItem of Array.from(menuItems)) {
+  const label = menuItem.innerText;
+  if (!label) continue;
+  finalMenus.push(label)
+}
+
+[
+    "Add-ons►",
+    "Apps Script(E)",
+    "Project short►",
+    "Search the menusOption+/",
+    "Help",
+    "Training",
+    "Updates",
+    "Help Slides improve",
+    "Report abuse",
+    "Privacy Policy",
+    "Terms of Service",
+    "Keyboard shortcuts⌘/",
+    "Presenter viewStart slideshow with audience Q&A and view speaker notes ",
+    "Start from beginning⌘+Shift+Enter",
+    "Present on another screen",
+    "Since you last viewed",
+    "Since you last approved",
+    "Since approval started",
+    "Cut⌘X",
+    "Copy⌘C",
+    "Copy as Markdown",
+    "Paste⌘V",
+    "Paste without formatting⌘+Shift+V",
+    "Paste from Markdown",
+    "Delete",
+    "Change background",
+    "Apply layout►",
+    "Change theme",
+    "Transition",
+    "Comment⌘+Option+M",
+    "Guides►",
+    "Verbalize to screen reader►",
+    "Go to filmstrip⌘+Option+Shift+F",
+    "Go to canvas⌘+Option+Shift+C",
+    "Go to speaker notes⌘+Option+Shift+S",
+    "Comments►",
+    "Misspelling►",
+    "Formatting►",
+    "Match destination formatting",
+    "Keep source formatting",
+    "More fonts",
+    "SIMPLE LIGHT",
+    "Arial",
+    "RECENT",
+    "Calibri",
+    "Noto Sans JP",
+    "Arial",
+    "Sawarabi Gothic",
+    "Times New Roman",
+    "Amatic SC",
+    "Arial",
+    "Calibri",
+    "Caveat►",
+    "Comfortaa►",
+    "Comic Sans MS",
+    "Courier New",
+    "EB Garamond►",
+    "Georgia",
+    "Impact",
+    "Lexend►",
+    "Lobster",
+    "Lora►",
+    "Merriweather►",
+    "Montserrat►",
+    "Noto Sans JP",
+    "Nunito►",
+    "Oswald►",
+    "Pacifico",
+    "Playfair Display►",
+    "Roboto►",
+    "Roboto Mono►",
+    "Roboto Serif►",
+    "Sawarabi Gothic",
+    "Spectral►",
+    "Times New Roman",
+    "Trebuchet MS",
+    "Verdana",
+    "ヒラギノ丸ゴ ProN",
+    "ヒラギノ明朝 ProN",
+    "日本語",
+    "日本語",
+    "Order►",
+    "Align►",
+    "Distribute►",
+    "Center on page►",
+    "Rotate►",
+    "Group⌘+Option+G",
+    "Ungroup⌘+Option+Shift+G",
+    "Bring to front⌘+Shift+↑",
+    "Bring forward⌘+↑",
+    "Send backward⌘+↓",
+    "Send to back⌘+Shift+↓",
+    "Left",
+    "Center",
+    "Right",
+    "Top",
+    "Middle",
+    "Bottom",
+    "Spelling►",
+    "Explore⌘+Option+Shift+I",
+    "Linked objects",
+    "Dictionary⌘+Shift+Y",
+    "Q&A history",
+    "Voice type speaker notes⌘+Shift+S",
+    "Notification settings",
+    "Preferences",
+    "Accessibility",
+    "Activity dashboard(Z)",
+    "Activity dashboard",
+    "New slideCtrl+M",
+    "Duplicate slide",
+    "Delete slide",
+    "Skip slide",
+    "Move slide►",
+    "Change background",
+    "Apply layout►",
+    "Transition",
+    "Edit theme",
+    "Change theme",
+    "Horizontally",
+    "Vertically",
+    "Rotate clockwise 90°",
+    "Rotate counter-clockwise 90°",
+    "Flip horizontally",
+    "Flip vertically"
+]
+
+--activateMenu--
+// to hide all these
+const menus = Array.from(document.querySelectorAll(".goog-menu"));
+
+
+function findMenuItem(caption) {
+    const menuItems = document.querySelectorAll(".goog-menuitem");
+    const isRegexp = caption instanceof RegExp;
+    for (const menuItem of Array.from(menuItems)) {
+      let label = menuItem.innerText;
+      if (!label) continue;
+      label = label.replace(/[\r\n]+/gm, "");
+      if (isRegexp) {
+        if (caption.test(label)) {
+          return menuItem;
+        }
+      } else {
+        if (label.indexOf(caption) === 0) {
+          return menuItem;
+        }
+      }
+    }
+    return null;
+}
+
+window.simulateClick = function simulateClick(el, x, y) {
+    if (x == null) x = 0;
+    if (y == null) y = 0;
+    const eventSequence = ["mouseover", "mousedown", "mouseup", "click"];
+    for (const eventName of eventSequence) {
+      const event = document.createEvent("MouseEvents");
+      event.initMouseEvent(
+        eventName,
+        true, // bubbles
+        true, // cancelable
+        window, //view
+        1, // event-detail
+        x, // screenX
+        y, // screenY
+        x, // clientX
+        y, // clientY
+        false, // ctrl
+        false, // alt
+        false, // shift
+        false, // meta
+        0, // button
+        null, // relatedTarget
+      );
+      el.dispatchEvent(event);
+    }
+  }
+
+window.simulateClick(findMenuItem("Align►"))
+// or
+window.simulateClick(findMenuItem("Align\n►"))
+
+const menus = Array.from(document.querySelectorAll(".goog-menu"));
+for (const m of menus) {
+    m.style.display = "none";
+}
+
+window.simulateClick(findMenuItem("Top"))
