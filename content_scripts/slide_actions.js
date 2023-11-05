@@ -74,7 +74,7 @@ const SlideActions = {
   },
 
   // A mapping of button-caption to DOM element.
-  menuItemElements: {},
+  MappingCacheOfmenuItemToElements: {},
 
   // This is a function that will get assigned to by ui.js. We're not referencing ui.js directly, so
   // that we can avoid a circular dependency.
@@ -108,30 +108,29 @@ const SlideActions = {
   // is true.
   _getMenuItem(caption, silenceWarning) {
     if (silenceWarning == null) silenceWarning = false;
-    let item = this.menuItemElements[caption];
+    let item = this.MappingCacheOfmenuItemToElements[caption];
     if (item) return item;
     item = this._findMenuItem(caption);
     if (!item) {
       if (!silenceWarning) console.log(`Error: could not find menu item with caption ${caption}`);
       return null;
     }
-    return this.menuItemElements[caption] = item;
+    return this.MappingCacheOfmenuItemToElements[caption] = item;
   },
 
   _findMenuItem(caption) {
     const menuItems = document.querySelectorAll(".goog-menuitem");
-    const isRegexp = caption instanceof RegExp;
     for (const menuItem of Array.from(menuItems)) {
       let label = menuItem.innerText;
       if (!label) continue;
       // remove new line in label
       label = label.replace(/[\r\n]+/gm, "");
-      if (isRegexp) {
+      if (caption instanceof RegExp) {
         if (caption.test(label)) {
           return menuItem;
         }
       } else {
-        if (label.indexOf(caption) === 0) {
+        if (caption === label) {
           return menuItem;
         }
         // "Horizontally" and "Vertically" exist both for distribute and center on. distribute has icon, center on page does not
