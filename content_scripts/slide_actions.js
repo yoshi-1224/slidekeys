@@ -131,11 +131,15 @@ const SlideActions = {
         }
       } else {
         if (caption === label) {
+          if (["Horizontally", "Vertically"].includes(caption)) {
+             // We want the distribute action, which has an icon.
+             if (menuItem.querySelectorAll(".goog-menuitem-icon").length > 0) {
+               return menuItem;
+             }
+             continue;
+          }
           return menuItem;
         }
-        // "Horizontally" and "Vertically" exist both for distribute and center on. distribute has icon, center on page does not
-        // if we need to distinguish between the two, then use the below condition
-        // if (menuItem.parentElement.classList.contains("ia-has-icon"))
       }
     }
     return null;

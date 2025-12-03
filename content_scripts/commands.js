@@ -20,7 +20,7 @@ const Commands = {
       name: "Align Objects Top",
       group: "arrange",
       mode: "normal",
-      defaultMapping: ";•a•t",
+      defaultMapping: "a•t",
     },
     
     alignObjectsMiddle: {
@@ -28,7 +28,7 @@ const Commands = {
       name: "Align Objects Middle",
       group: "arrange",
       mode: "normal",
-      defaultMapping: ";•a•m",
+      defaultMapping: "a•m",
     },
 
     alignObjectsBottom: {
@@ -36,7 +36,7 @@ const Commands = {
       name: "Align Objects Bottom",
       group: "arrange",
       mode: "normal",
-      defaultMapping: ";•a•b",
+      defaultMapping: "a•b",
     },
 
     alignObjectsCenter: {
@@ -44,7 +44,7 @@ const Commands = {
       name: "Align Objects Center",
       group: "arrange",
       mode: "normal",
-      defaultMapping: ";•a•c",
+      defaultMapping: "a•c",
     },
 
     alignObjectsLeft: {
@@ -52,7 +52,7 @@ const Commands = {
       name: "Align Objects Left",
       group: "arrange",
       mode: "normal",
-      defaultMapping: ";•a•l",
+      defaultMapping: "a•l",
     },
 
     alignObjectsRight: {
@@ -60,23 +60,23 @@ const Commands = {
       name: "Align Objects Right",
       group: "arrange",
       mode: "normal",
-      defaultMapping: ";•a•r",
+      defaultMapping: "a•r",
     },
 
     distributeObjectsHorizontally: {
       fn: async () => { SlideActions.runAction("distributeObjectsHorizontally") },
-      name: "Align Objects Right",
+      name: "Distribute Objects Horizontally",
       group: "arrange",
       mode: "normal",
-      defaultMapping: ";•d•h",
+      defaultMapping: "d•h",
     },
 
     distributeObjectsVertically: {
       fn: async () => { SlideActions.runAction("distributeObjectsVertically") },
-      name: "Align Objects Right",
+      name: "Distribute Objects Vertically",
       group: "arrange",
       mode: "normal",
-      defaultMapping: ";•d•v",
+      defaultMapping: "d•v",
     },
 
     alignTextTop: {
@@ -84,7 +84,15 @@ const Commands = {
       name: "Align Text Top",
       group: "arrange",
       mode: "normal",
-      defaultMapping: ";•t•t",
+      defaultMapping: "t•t",
+    },
+
+    alignTextMiddle: {
+      fn: async () => { SlideActions.runAction("alignTextMiddle") },
+      name: "Align Text Middle",
+      group: "arrange",
+      mode: "normal",
+      defaultMapping: "t•m",
     },
 
     alignTextBottom: {
@@ -92,7 +100,7 @@ const Commands = {
       name: "Align Text Bottom",
       group: "arrange",
       mode: "normal",
-      defaultMapping: ";•t•b",
+      defaultMapping: "t•b",
     },
 
     alignTextRight: {
@@ -100,7 +108,7 @@ const Commands = {
       name: "Align Text Right",
       group: "arrange",
       mode: "normal",
-      defaultMapping: ";•t•r",
+      defaultMapping: "t•r",
     },
 
     alignTextLeft: {
@@ -108,7 +116,7 @@ const Commands = {
       name: "Align Text Left",
       group: "arrange",
       mode: "normal",
-      defaultMapping: ";•t•l",
+      defaultMapping: "t•l",
     }
   },
 
