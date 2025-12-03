@@ -8,11 +8,14 @@ const UI = {
   // mappings.
   keyMappingsPrefixes: null,
   modeToKeyToCommand: null,
+  isTextEditing: false,
+  editingObserver: null,
 
   init() {
     // Key event handlers fire on window before they do on document. Prefer window for key events so
     // the page can't set handlers to grab keys before this extension does.
     window.addEventListener("keydown", (e) => this._onKeydown(e), true);
+    this._setupEditingDetector();
 
     setTimeout(function () {
       // Function to add a keydown event listener to the document of an iframe
@@ -98,10 +101,24 @@ const UI = {
     e.stopPropagation();
   },
 
+  _setupEditingDetector() {
+    const materialEl = document.querySelector("#sketchy-horizontal-ruler > div > div.docs-material");
+    if (!materialEl) {
+      setTimeout(() => this._setupEditingDetector(), 1000);
+      return;
+    }
+    const updateEditingState = () => {
+      this.isTextEditing = materialEl.style.display !== "none";
+    };
+    updateEditingState();
+    this.editingObserver = new MutationObserver(updateEditingState);
+    this.editingObserver.observe(materialEl, { attributes: true, attributeFilter: ["style"] });
+  },
+
   _onKeydown(e) {
     const keyString = KeyboardUtils.getKeyString(e);
     // console.log("keydown event. keyString:", keyString, e.keyCode, e.keyIdentifier, e);
-    if (this.ignoreKeys || SlideActions.mode == "disabled") return;
+    if (this.ignoreKeys || SlideActions.mode == "disabled" || this.isTextEditing) return;
 
     // Ignore key presses which are just modifiers.
     if (!keyString) return;
