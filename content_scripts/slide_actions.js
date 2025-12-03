@@ -70,6 +70,11 @@ const SlideActions = {
     alignTextLeft: {
       type: "toolbar",
       captionList: ["Align", "Left"]
+    },
+    setLineSpacing115: {
+      type: "toolbar_menu",
+      toolbarName: "Line spacing",
+      menuName: "1.15"
     }
   },
 
@@ -101,6 +106,20 @@ const SlideActions = {
       }
       UI.simulateClick(els[0]);
     }
+  },
+
+  _clickToolbarMenu(toolbarName, menuName) {
+    let els = document.querySelectorAll(`*[aria-label='${toolbarName}']`);
+    if (els.length == 0) {
+         // Try alternative name
+         els = document.querySelectorAll(`*[aria-label='Line & paragraph spacing']`);
+    }
+    if (els.length == 0) {
+      console.log(`Couldn't find toolbar button ${toolbarName}`);
+      return;
+    }
+    UI.simulateClick(els[0]);
+    this._clickMenu(menuName);
   },
 
   // Returns the DOM element of the menu item with the given caption. Prints a warning if a menu
@@ -196,8 +215,10 @@ const SlideActions = {
       // click parent menu first
       this._activateMenu(action.parentMenu);
       this._clickMenu(action.menuName);
-    }else if (action.type === "toolbar") {
+    } else if (action.type === "toolbar") {
       this._clickToolbarButton(action.captionList);
+    } else if (action.type === "toolbar_menu") {
+      this._clickToolbarMenu(action.toolbarName, action.menuName);
     }
   }
 };

@@ -117,6 +117,14 @@ const Commands = {
       group: "arrange",
       mode: "normal",
       defaultMapping: "t•l",
+    },
+
+    setLineSpacing115: {
+      fn: async () => { SlideActions.runAction("setLineSpacing115") },
+      name: "Set Line Spacing 1.15",
+      group: "arrange",
+      mode: "normal",
+      defaultMapping: "t•s",
     }
   },
 
