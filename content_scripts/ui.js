@@ -183,6 +183,10 @@ const UI = {
   },
 
   simulateClick(el, x, y) {
+    if (!el) {
+      console.log("simulateClick: element is null/undefined; skipping.");
+      return;
+    }
     if (x == null) x = 0;
     if (y == null) y = 0;
     const eventSequence = ["mouseover", "mousedown", "mouseup", "click"];
