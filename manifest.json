@@ -21,7 +21,6 @@
     {
       "matches": [
         "https://docs.google.com/presentation/*",
-        "https://docs.google.com/spreadsheets/*",
         "https://docs.google.com/a*/presentation/*"
       ],
       "js": [

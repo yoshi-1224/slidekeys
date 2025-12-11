@@ -198,7 +198,9 @@ const SlideActions = {
   },
 
   _clickMenu(itemCaption) {
-    UI.simulateClick(this._getMenuItem(itemCaption));
+    const item = this._getMenuItem(itemCaption);
+    if (!item) return;
+    UI.simulateClick(item);
   },
 
   // Shows and then hides a submenu in the File menu system. This triggers creation of the toolbarButtons
