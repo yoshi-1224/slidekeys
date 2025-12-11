@@ -75,6 +75,30 @@ const SlideActions = {
       type: "toolbar_menu",
       toolbarName: "Line spacing",
       menuName: "1.15"
+    },
+    setIndentation: {
+      type: "menu",
+      menuName: "Indentation",
+      parentMenu: "custom slide menu►",
+      topMenuButtonSelector: "#docs-extensions-menu"
+    },
+    setShapePrimaryColor: {
+      type: "menu",
+      menuName: "Shape Primary Color",
+      parentMenu: "custom slide menu►",
+      topMenuButtonSelector: "#docs-extensions-menu"
+    },
+    setShapeSecondaryColor: {
+      type: "menu",
+      menuName: "Shape Secondary Color",
+      parentMenu: "custom slide menu►",
+      topMenuButtonSelector: "#docs-extensions-menu"
+    },
+    setTextGreen: {
+      type: "menu",
+      menuName: "Text Green",
+      parentMenu: "custom slide menu►",
+      topMenuButtonSelector: "#docs-extensions-menu"
     }
   },
 
@@ -120,6 +144,15 @@ const SlideActions = {
     }
     UI.simulateClick(els[0]);
     this._clickMenu(menuName);
+  },
+
+  _openMenuButton(selector) {
+    const button = document.querySelector(selector);
+    if (!button) {
+      console.log(`Couldn't find menu button ${selector}`);
+      return;
+    }
+    UI.simulateClick(button);
   },
 
   // Returns the DOM element of the menu item with the given caption. Prints a warning if a menu
@@ -212,6 +245,9 @@ const SlideActions = {
       return;
     }
     if (action.type === "menu") {
+      if (action.topMenuButtonSelector) {
+        this._openMenuButton(action.topMenuButtonSelector);
+      }
       // click parent menu first
       this._activateMenu(action.parentMenu);
       this._clickMenu(action.menuName);

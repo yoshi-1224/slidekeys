@@ -125,6 +125,38 @@ const Commands = {
       group: "arrange",
       mode: "normal",
       defaultMapping: "t•s",
+    },
+
+    setIndentation: {
+      fn: async () => { SlideActions.runAction("setIndentation") },
+      name: "Indentation",
+      group: "custom",
+      mode: "normal",
+      defaultMapping: "t•i",
+    },
+
+    setShapePrimaryColor: {
+      fn: async () => { SlideActions.runAction("setShapePrimaryColor") },
+      name: "Shape Primary Color",
+      group: "custom",
+      mode: "normal",
+      defaultMapping: "s•p",
+    },
+
+    setShapeSecondaryColor: {
+      fn: async () => { SlideActions.runAction("setShapeSecondaryColor") },
+      name: "Shape Secondary Color",
+      group: "custom",
+      mode: "normal",
+      defaultMapping: "s•s",
+    },
+
+    setTextGreen: {
+      fn: async () => { SlideActions.runAction("setTextGreen") },
+      name: "Text Green",
+      group: "custom",
+      mode: "normal",
+      defaultMapping: "t•g",
     }
   },
 
