@@ -183,13 +183,6 @@ const SlideActions = {
         }
       } else {
         if (caption === label) {
-          if (["Horizontally", "Vertically"].includes(caption)) {
-             // We want the distribute action, which has an icon.
-             if (menuItem.querySelectorAll(".goog-menuitem-icon").length > 0) {
-               return menuItem;
-             }
-             continue;
-          }
           return menuItem;
         }
       }
@@ -205,29 +198,44 @@ const SlideActions = {
 
   // Shows and then hides a submenu in the File menu system. This triggers creation of the toolbarButtons
   // in that submenu, so they can be clicked.
-  _activateMenu(menuCaption) {
-    try {
-      this._clickMenu(menuCaption);
-    } catch (error) {
-      this._pregenerateArrangeMenu();
-      this._clickMenu(menuCaption);
+  _sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  },
+
+  // Polls for a menu item to appear in the DOM, returning it when found or null on timeout.
+  async _waitForMenuItem(caption, timeoutMs) {
+    const start = Date.now();
+    while (Date.now() - start < timeoutMs) {
+      const item = this._findMenuItem(caption);
+      if (item) return item;
+      await this._sleep(30);
     }
-    
-    // Once the submenu is shown, it can only be hidden by modifying its style attribute. It's not
-    // possible to identify and find the specific submenu DOM element that was created and shown as
-    // a result of clicking on the menuButton, so we brute force hide all menus.
+    return null;
+  },
+
+  // Opens a parent submenu so its children get created in the DOM.
+  // Does NOT hide menus — caller is responsible for cleanup.
+  async _activateMenu(menuCaption) {
+    let item = this._getMenuItem(menuCaption, true);
+    if (!item) {
+      // Open Arrange menu (keep it open) to generate submenu items in the DOM.
+      UI.simulateClick(document.querySelector("#sketchy-arrange-menu"));
+      await this._sleep(100);
+      item = this._getMenuItem(menuCaption, true);
+    }
+    if (item) {
+      // Click the submenu item to trigger its children to be created in the DOM.
+      UI.simulateClick(item);
+    }
+  },
+
+  _hideAllMenus() {
     const menus = Array.from(document.querySelectorAll(".goog-menu"));
     for (const m of menus) {
       m.style.display = "none";
     }
   },
 
-  _pregenerateArrangeMenu() {
-    // menus under Arrange will not exist in DOM before Arrange is clicked
-    UI.simulateClick(document.querySelector("#sketchy-arrange-menu"));
-    // click again to hide
-    UI.simulateClick(document.querySelector("#sketchy-arrange-menu"));
-  },
 
   async showHelpDialog() {
     console.log("showHelpDialog");
@@ -239,7 +247,7 @@ const SlideActions = {
     await h.show();
   },
 
-  runAction(action_type) {
+  async runAction(action_type) {
     console.log("slide_actions.js:", action_type);
     let action = this.actions[action_type]
     if (!action) {
@@ -250,9 +258,16 @@ const SlideActions = {
       if (action.topMenuButtonSelector) {
         this._openMenuButton(action.topMenuButtonSelector);
       }
-      // click parent menu first
-      this._activateMenu(action.parentMenu);
-      this._clickMenu(action.menuName);
+      // Open parent submenu (keeps menus visible so children can render)
+      await this._activateMenu(action.parentMenu);
+      // Poll for the target menu item to appear (up to 1 second)
+      const menuItem = await this._waitForMenuItem(action.menuName, 1000);
+      if (menuItem) {
+        UI.simulateClick(menuItem);
+      } else {
+        console.log(`Error: timed out waiting for menu item "${action.menuName}"`);
+      }
+      this._hideAllMenus();
     } else if (action.type === "toolbar") {
       this._clickToolbarButton(action.captionList);
     } else if (action.type === "toolbar_menu") {

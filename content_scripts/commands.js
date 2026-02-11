@@ -16,7 +16,7 @@ const Commands = {
     },
 
     alignObjectsTop: {
-      fn: async () => { SlideActions.runAction("alignObjectsTop") },
+      fn: async () => { await SlideActions.runAction("alignObjectsTop") },
       name: "Align Objects Top",
       group: "arrange",
       mode: "normal",
@@ -24,7 +24,7 @@ const Commands = {
     },
     
     alignObjectsMiddle: {
-      fn: async () => { SlideActions.runAction("alignObjectsMiddle") },
+      fn: async () => { await SlideActions.runAction("alignObjectsMiddle") },
       name: "Align Objects Middle",
       group: "arrange",
       mode: "normal",
@@ -32,7 +32,7 @@ const Commands = {
     },
 
     alignObjectsBottom: {
-      fn: async () => { SlideActions.runAction("alignObjectsBottom") },
+      fn: async () => { await SlideActions.runAction("alignObjectsBottom") },
       name: "Align Objects Bottom",
       group: "arrange",
       mode: "normal",
@@ -40,7 +40,7 @@ const Commands = {
     },
 
     alignObjectsCenter: {
-      fn: async () => { SlideActions.runAction("alignObjectsCenter") },
+      fn: async () => { await SlideActions.runAction("alignObjectsCenter") },
       name: "Align Objects Center",
       group: "arrange",
       mode: "normal",
@@ -48,7 +48,7 @@ const Commands = {
     },
 
     alignObjectsLeft: {
-      fn: async () => { SlideActions.runAction("alignObjectsLeft") },
+      fn: async () => { await SlideActions.runAction("alignObjectsLeft") },
       name: "Align Objects Left",
       group: "arrange",
       mode: "normal",
@@ -56,7 +56,7 @@ const Commands = {
     },
 
     alignObjectsRight: {
-      fn: async () => { SlideActions.runAction("alignObjectsRight") },
+      fn: async () => { await SlideActions.runAction("alignObjectsRight") },
       name: "Align Objects Right",
       group: "arrange",
       mode: "normal",
@@ -64,7 +64,7 @@ const Commands = {
     },
 
     distributeObjectsHorizontally: {
-      fn: async () => { SlideActions.runAction("distributeObjectsHorizontally") },
+      fn: async () => { await SlideActions.runAction("distributeObjectsHorizontally") },
       name: "Distribute Objects Horizontally",
       group: "arrange",
       mode: "normal",
@@ -72,7 +72,7 @@ const Commands = {
     },
 
     distributeObjectsVertically: {
-      fn: async () => { SlideActions.runAction("distributeObjectsVertically") },
+      fn: async () => { await SlideActions.runAction("distributeObjectsVertically") },
       name: "Distribute Objects Vertically",
       group: "arrange",
       mode: "normal",
@@ -80,7 +80,7 @@ const Commands = {
     },
 
     alignTextTop: {
-      fn: async () => { SlideActions.runAction("alignTextTop") },
+      fn: async () => { await SlideActions.runAction("alignTextTop") },
       name: "Align Text Top",
       group: "arrange",
       mode: "normal",
@@ -88,7 +88,7 @@ const Commands = {
     },
 
     alignTextMiddle: {
-      fn: async () => { SlideActions.runAction("alignTextMiddle") },
+      fn: async () => { await SlideActions.runAction("alignTextMiddle") },
       name: "Align Text Middle",
       group: "arrange",
       mode: "normal",
@@ -96,7 +96,7 @@ const Commands = {
     },
 
     alignTextBottom: {
-      fn: async () => { SlideActions.runAction("alignTextBottom") },
+      fn: async () => { await SlideActions.runAction("alignTextBottom") },
       name: "Align Text Bottom",
       group: "arrange",
       mode: "normal",
@@ -104,7 +104,7 @@ const Commands = {
     },
 
     alignTextRight: {
-      fn: async () => { SlideActions.runAction("alignTextRight") },
+      fn: async () => { await SlideActions.runAction("alignTextRight") },
       name: "Align Text Right",
       group: "arrange",
       mode: "normal",
@@ -112,7 +112,7 @@ const Commands = {
     },
 
     alignTextLeft: {
-      fn: async () => { SlideActions.runAction("alignTextLeft") },
+      fn: async () => { await SlideActions.runAction("alignTextLeft") },
       name: "Align Text Left",
       group: "arrange",
       mode: "normal",
@@ -120,7 +120,7 @@ const Commands = {
     },
 
     setLineSpacing115: {
-      fn: async () => { SlideActions.runAction("setLineSpacing115") },
+      fn: async () => { await SlideActions.runAction("setLineSpacing115") },
       name: "Set Line Spacing 1.15",
       group: "arrange",
       mode: "normal",
@@ -128,7 +128,7 @@ const Commands = {
     },
 
     setIndentation: {
-      fn: async () => { SlideActions.runAction("setIndentation") },
+      fn: async () => { await SlideActions.runAction("setIndentation") },
       name: "Indentation",
       group: "custom",
       mode: "normal",
@@ -136,7 +136,7 @@ const Commands = {
     },
 
     setShapePrimaryColor: {
-      fn: async () => { SlideActions.runAction("setShapePrimaryColor") },
+      fn: async () => { await SlideActions.runAction("setShapePrimaryColor") },
       name: "Shape Primary Color",
       group: "custom",
       mode: "normal",
@@ -144,7 +144,7 @@ const Commands = {
     },
 
     setShapeSecondaryColor: {
-      fn: async () => { SlideActions.runAction("setShapeSecondaryColor") },
+      fn: async () => { await SlideActions.runAction("setShapeSecondaryColor") },
       name: "Shape Secondary Color",
       group: "custom",
       mode: "normal",
@@ -152,7 +152,7 @@ const Commands = {
     },
 
     setTextGreen: {
-      fn: async () => { SlideActions.runAction("setTextGreen") },
+      fn: async () => { await SlideActions.runAction("setTextGreen") },
       name: "Text Green",
       group: "custom",
       mode: "normal",

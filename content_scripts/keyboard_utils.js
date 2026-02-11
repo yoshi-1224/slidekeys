@@ -41,7 +41,28 @@ const KeyboardUtils = {
       // https://github.com/philc/vimium/issues/2147#issuecomment-230370011 for discussion.
       keyString = String.fromCharCode(event.keyCode).toLowerCase();
     } else if (event.key.length === 1) {
-      keyString = event.key;
+      // If a non-Latin character is produced (e.g., Japanese kana mode), use the physical
+      // key code to get the Latin equivalent so shortcuts still work.
+      if (!/[a-zA-Z0-9\x20-\x7e]/.test(event.key) && event.code) {
+        if (event.code.startsWith("Key")) {
+          keyString = event.code.charAt(3).toLowerCase();
+        } else if (event.code.startsWith("Digit")) {
+          keyString = event.code.charAt(5);
+        } else {
+          keyString = event.key;
+        }
+      } else {
+        keyString = event.key;
+      }
+    } else if (event.keyCode === 229 && event.code) {
+      // IME processing key — use the physical key code.
+      if (event.code.startsWith("Key")) {
+        keyString = event.code.charAt(3).toLowerCase();
+      } else if (event.code.startsWith("Digit")) {
+        keyString = event.code.charAt(5);
+      } else {
+        return;
+      }
     } else if (event.key.length === 2 && "F1" <= event.key && event.key <= "F9") {
       keyString = event.key.toLowerCase(); // F1 to F9.
     } else if (event.key.length === 3 && "F10" <= event.key && event.key <= "F12") {
