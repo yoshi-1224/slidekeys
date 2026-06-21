@@ -15,7 +15,7 @@ const Settings = {
     // If the user has a keybinding which refers to a command that no longer exists, prune it.
     for (const commandName of Object.keys(values.keyMappings || {})) {
       if (!Commands.commands[commandName]) {
-        delete values.keyMappings[mode][commandName];
+        delete values.keyMappings[commandName];
       }
     }
 

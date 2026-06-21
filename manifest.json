@@ -13,11 +13,29 @@
   "background": {
     "service_worker": "background_script.js"
   },
-  // Uncommenting this will make this page accessible by navigating to chrome://extensions and clicking on the
-  // Options page for SheetKeys. This is useful while working on the help dialog UI, because it's is faster to
-  // load the options page without having to load frequently reload a heavy-weight Google Sheets page.
-  // "options_page": "harnesses/help_dialog_harness.html",
+  "commands": {
+    "setLineSpacing115": {
+      "suggested_key": {
+        "default": "Alt+Shift+S",
+        "mac": "MacCtrl+Shift+S"
+      },
+      "description": "Set line spacing to 1.15"
+    }
+  },
   "content_scripts": [
+    {
+      "matches": [
+        "https://docs.google.com/presentation/*",
+        "https://docs.google.com/a*/presentation/*"
+      ],
+      "js": [
+        "content_scripts/main_world_shortcuts.js"
+      ],
+      "all_frames": true,
+      "match_about_blank": true,
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
     {
       "matches": [
         "https://docs.google.com/presentation/*",
@@ -28,13 +46,13 @@
         "content_scripts/keyboard_utils.js",
         "content_scripts/settings.js",
         "content_scripts/slide_actions.js",
-        "content_scripts/ui.js",
         "content_scripts/commands.js",
-        "help_dialog.js"
+        "help_dialog.js",
+        "content_scripts/ui.js"
       ],
-      // "all_frames": true,
-      // "match_about_blank": true
-      "run_at": "document_idle"
+      "all_frames": true,
+      "match_about_blank": true,
+      "run_at": "document_start"
     }
   ],
   "web_accessible_resources": [

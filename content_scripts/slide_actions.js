@@ -99,6 +99,28 @@ const SlideActions = {
       menuName: "Text Green",
       parentMenu: "custom slide menu►",
       topMenuButtonSelector: "#docs-extensions-menu"
+    },
+    setTextWhite: {
+      type: "menu",
+      menuName: "Text White",
+      parentMenu: "custom slide menu►",
+      topMenuButtonSelector: "#docs-extensions-menu"
+    },
+    setFontIBMPlexSansJPMedium: {
+      type: "menu",
+      menuName: "Font IBM Plex Sans JP Medium",
+      parentMenu: "custom slide menu►",
+      topMenuButtonSelector: "#docs-extensions-menu"
+    },
+    setTextBlack: {
+      type: "menu",
+      menuName: "Text Black",
+      parentMenu: "custom slide menu►",
+      topMenuButtonSelector: "#docs-extensions-menu"
+    },
+    paintFormat: {
+      type: "toolbar",
+      captionList: ["Paint format"]
     }
   },
 
@@ -108,6 +130,15 @@ const SlideActions = {
   // This is a function that will get assigned to by ui.js. We're not referencing ui.js directly, so
   // that we can avoid a circular dependency.
   typeKeyFn: null,
+
+  _debugAction(actionType, step, metadata) {
+    if (typeof UI === "undefined" || !UI._debugSlideAction) return;
+    UI._debugSlideAction({
+      actionType,
+      metadata: metadata || null,
+      step,
+    });
+  },
 
   _clickToolbarButton(captionList) {
     // Sometimes a toolbar button won't exist in the DOM until its parent has been clicked, so we
@@ -132,18 +163,35 @@ const SlideActions = {
     }
   },
 
-  _clickToolbarMenu(toolbarName, menuName) {
+  async _clickToolbarMenu(toolbarName, menuName, actionType) {
     let els = document.querySelectorAll(`*[aria-label='${toolbarName}']`);
+    const primaryCount = els.length;
     if (els.length == 0) {
-         // Try alternative name
-         els = document.querySelectorAll(`*[aria-label='Line & paragraph spacing']`);
+      // Try alternative name
+      els = document.querySelectorAll(`*[aria-label='Line & paragraph spacing']`);
     }
+    this._debugAction(actionType, "toolbarMenuButtonLookup", {
+      fallbackCount: els.length,
+      primaryCount,
+    });
     if (els.length == 0) {
+      this._debugAction(actionType, "toolbarMenuButtonMissing");
       console.log(`Couldn't find toolbar button ${toolbarName}`);
       return;
     }
     UI.simulateClick(els[0]);
-    this._clickMenu(menuName);
+    this._debugAction(actionType, "toolbarMenuButtonClicked");
+    const menuItem = await this._waitForMenuItem(menuName, 1000);
+    if (menuItem) {
+      this._debugAction(actionType, "toolbarMenuItemFound");
+      UI.simulateClick(menuItem);
+      this._debugAction(actionType, "toolbarMenuItemClicked");
+    } else {
+      this._debugAction(actionType, "toolbarMenuItemTimedOut");
+      console.log(`Error: timed out waiting for toolbar menu item "${menuName}"`);
+    }
+    this._hideAllMenus();
+    this._debugAction(actionType, "menusHidden");
   },
 
   _openMenuButton(selector) {
@@ -251,9 +299,11 @@ const SlideActions = {
     console.log("slide_actions.js:", action_type);
     let action = this.actions[action_type]
     if (!action) {
+      this._debugAction(action_type, "missingAction");
       console.log("slide_actions.js->runAction: no matching action found for", action_type);
       return;
     }
+    this._debugAction(action_type, "start", { actionKind: action.type });
     if (action.type === "menu") {
       if (action.topMenuButtonSelector) {
         this._openMenuButton(action.topMenuButtonSelector);
@@ -271,8 +321,9 @@ const SlideActions = {
     } else if (action.type === "toolbar") {
       this._clickToolbarButton(action.captionList);
     } else if (action.type === "toolbar_menu") {
-      this._clickToolbarMenu(action.toolbarName, action.menuName);
+      await this._clickToolbarMenu(action.toolbarName, action.menuName, action_type);
     }
+    this._debugAction(action_type, "complete", { actionKind: action.type });
   }
 };
 

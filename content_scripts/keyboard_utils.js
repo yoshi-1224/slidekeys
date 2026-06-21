@@ -27,11 +27,23 @@ const KeyboardUtils = {
   // A map of keyCode => keyName (a reverse map of keyCodes).
   keyNames: new Map(Object.entries(keyCodes).map(([k, v]) => [v, k])),
 
+  _keyStringFromPhysicalCode(code) {
+    if (!code) return null;
+    if (code.startsWith("Key") && code.length === 4) return code.charAt(3).toLowerCase();
+    if (code.startsWith("Digit") && code.length === 6) return code.charAt(5);
+    return null;
+  },
+
   // Returns the string "<A-f>" if "alt F" is pressed.
   // this is called by help_dialog.js and ui.js.
   getKeyString(event) {
     let keyString;
-    if (this.keyNames.has(event.keyCode)) {
+    if (event.keyCode === 229) {
+      // IME keyboard modes report printable physical keys as keyCode 229. Prefer event.code so
+      // shortcuts like t•s keep using the same physical keys as an English keyboard layout.
+      keyString = this._keyStringFromPhysicalCode(event.code);
+      if (!keyString) return;
+    } else if (this.keyNames.has(event.keyCode)) {
       keyString = this.keyNames.get(event.keyCode);
     } else if (event.altKey && event.key && event.key != "Alt") {
       // The pressed key is a non-ASCII printing character in the current layout, and is ASCII in
@@ -44,24 +56,9 @@ const KeyboardUtils = {
       // If a non-Latin character is produced (e.g., Japanese kana mode), use the physical
       // key code to get the Latin equivalent so shortcuts still work.
       if (!/[a-zA-Z0-9\x20-\x7e]/.test(event.key) && event.code) {
-        if (event.code.startsWith("Key")) {
-          keyString = event.code.charAt(3).toLowerCase();
-        } else if (event.code.startsWith("Digit")) {
-          keyString = event.code.charAt(5);
-        } else {
-          keyString = event.key;
-        }
+        keyString = this._keyStringFromPhysicalCode(event.code) || event.key;
       } else {
         keyString = event.key;
-      }
-    } else if (event.keyCode === 229 && event.code) {
-      // IME processing key — use the physical key code.
-      if (event.code.startsWith("Key")) {
-        keyString = event.code.charAt(3).toLowerCase();
-      } else if (event.code.startsWith("Digit")) {
-        keyString = event.code.charAt(5);
-      } else {
-        return;
       }
     } else if (event.key.length === 2 && "F1" <= event.key && event.key <= "F9") {
       keyString = event.key.toLowerCase(); // F1 to F9.

@@ -157,6 +157,38 @@ const Commands = {
       group: "custom",
       mode: "normal",
       defaultMapping: "t•g",
+    },
+
+    setTextWhite: {
+      fn: async () => { await SlideActions.runAction("setTextWhite") },
+      name: "Text White",
+      group: "custom",
+      mode: "normal",
+      defaultMapping: "t•w",
+    },
+
+    setFontIBMPlexSansJPMedium: {
+      fn: async () => { await SlideActions.runAction("setFontIBMPlexSansJPMedium") },
+      name: "Font IBM Plex Sans JP Medium",
+      group: "custom",
+      mode: "normal",
+      defaultMapping: "f•f",
+    },
+
+    setTextBlack: {
+      fn: async () => { await SlideActions.runAction("setTextBlack") },
+      name: "Text Black",
+      group: "custom",
+      mode: "normal",
+      defaultMapping: "f•b",
+    },
+
+    paintFormat: {
+      fn: async () => { await SlideActions.runAction("paintFormat") },
+      name: "Paint Format",
+      group: "custom",
+      mode: "normal",
+      defaultMapping: "p•f",
     }
   },
 
